@@ -19,6 +19,7 @@ The idea behind scheduled XDCR is to use XDCR by being able to hande data corrup
 The following basic requirments are existent:
 
 * The implementation should happen in one of Couchbase's native languages (Python, C/C++, Go, Erlang)
+* The source cluster is still online and so serves requests. So the job runs as a background task.
 * Run a job/daemon which accepts the following parameters
   * Cluster: The url of the cluster's Admin service
   * User: Admin user
@@ -26,7 +27,7 @@ The following basic requirments are existent:
   * Start time: The date and time when the job starts the first time
   * Frequency: How often should XDCR run
 * Transfer every change which is existent at the point of time when the job kicks in
-* The source cluster is still online and so serves requests. So the job runs as a background task.
+
 
 ## Implementation idea
 
