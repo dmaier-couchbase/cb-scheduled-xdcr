@@ -31,8 +31,8 @@ The following basic requirments are existent:
 
 ## Implementation idea
 
-* Use the XDCR REST interface for pausing/resuming XDCR
-* Monitor the XDCR queues in order to determine if the relevant data was already transfered
+* Use the XDCR REST interface for pausing/resuming XDCR. The documentation can be found here: http://docs.couchbase.com/admin/admin/REST/rest-xdcr-pause-resume.html
+* Monitor the XDCR queues in order to determine if the relevant data was already transfered. The documention can be found here: http://docs.couchbase.com/admin/admin/REST/rest-xdcr-statistics.html .
 * Use the heuristic of a marker document. The marker document is created as soon as the jobs kicks in. The job checks frequently if the marker already arrived on the target side.
 
 ## Challenges
