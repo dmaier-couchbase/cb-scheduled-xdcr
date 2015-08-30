@@ -56,8 +56,6 @@ def test_ret_stat():
     #TODO Add assertion
 
 
-
-
 def main():
        test_rest_get()
        test_resolve_uuid()

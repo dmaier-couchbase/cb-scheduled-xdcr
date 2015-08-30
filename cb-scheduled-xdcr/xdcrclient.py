@@ -62,6 +62,11 @@ def link_id(base_url, user, password, s_bucket, t_bucket, name):
     uuid = resolve_uuid(base_url,user,password,name)
     return uuid + "%2F" + s_bucket + "%2F" + t_bucket
 
+
+###################################################
+# Retrieves an XDCR statistics value
+#
+###################################################
 def ret_stat(base_url, user, password, s_bucket, xdcr_link, stat):
 
     url = XDCR_STATS_ENDPOINT.replace("{url}", base_url)
@@ -69,6 +74,7 @@ def ret_stat(base_url, user, password, s_bucket, xdcr_link, stat):
     url = url.replace("{xdcr_link_id}", xdcr_link)
     url = url.replace("{xdcr_stat}", stat)
 
+    #TODO Parse the result
     return rest_get(url, user, password)
 
 
