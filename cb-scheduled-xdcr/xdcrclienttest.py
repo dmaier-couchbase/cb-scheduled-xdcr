@@ -22,7 +22,7 @@ ADMIN_PWD = "couchbase"
 def test_rest_get():
 
     print("Testing to get data from the service ...")
-    result = xdcrclient.rest_get(BASE_URL + "/pools/default", ADMIN_USER, ADMIN_PWD)
+    result = xdcrclient.rest_call(BASE_URL + "/pools/default", ADMIN_USER, ADMIN_PWD)
     print(result)
     assert "rebalanceProgressUri" in str(result)
 
@@ -34,6 +34,7 @@ def test_rest_get():
 # purpose
 ###################################################
 def test_resolve_uuid():
+
     print("Testing to resolve the UUID of the XDCR replicaton ...")
     result = xdcrclient.resolve_uuid(BASE_URL, ADMIN_USER, ADMIN_PWD, "local")
     print(result)
@@ -46,20 +47,36 @@ def test_resolve_uuid():
 # 'social' and a target bucket 'test_xdcr' is required
 ###################################################
 def test_ret_stat():
-    print("Testing to retrive statistics ...")
 
+    print("Testing to retrieve statistics ...")
     link_id = xdcrclient.link_id(BASE_URL, ADMIN_USER, ADMIN_PWD,"social","test_xdcr","local")
     print(link_id)
-
     result = xdcrclient.ret_stat(BASE_URL, ADMIN_USER, ADMIN_PWD, "social", link_id, "percent_completeness")
     print result
-    #TODO Add assertion
+    assert result == 0.0
+
+###################################################
+# Test if it works to pause and continue the XDCR
+# replication
+#
+###################################################
+def test_pause():
+    print("Testing to pause the replication ...")
+    link_id = xdcrclient.link_id(BASE_URL, ADMIN_USER, ADMIN_PWD,"social","test_xdcr","local")
+    print(link_id)
+    result = xdcrclient.pause(BASE_URL,ADMIN_USER,ADMIN_PWD,link_id)
+    print result
+    assert "'pauseRequested': True" in str(result)
+    result =     result = xdcrclient.pause(BASE_URL,ADMIN_USER,ADMIN_PWD,link_id,True)
+    print result
+    assert "'pauseRequested': False" in str(result)
 
 
 def main():
        test_rest_get()
        test_resolve_uuid()
        test_ret_stat()
+       test_pause()
 
 if __name__ == '__main__':
     main();

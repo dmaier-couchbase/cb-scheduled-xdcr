@@ -7,8 +7,14 @@
 #
 ########################################################################################################################
 
-import urllib, urllib2, simplejson as json
+## Imports
+import urllib, urllib2, simplejson as json, numpy
 
+## Http method constants
+HTTP_GET = 0
+HTTP_POST = 1
+
+## Endpoints
 #e.g. http://192.168.7.162:8091/pools/default/remoteClusters
 XDCR_REMOTE_CLUSTERS_ENDPOINT = "{url}/pools/default/remoteClusters"
 
@@ -17,20 +23,33 @@ XDCR_REMOTE_CLUSTERS_ENDPOINT = "{url}/pools/default/remoteClusters"
 XDCR_STATS_ENDPOINT = "{url}/pools/default/buckets/{bucket}/stats/replications%2F{xdcr_link_id}%2F{xdcr_stat}"
 
 #e.g. http://192.168.7.162:8091/settings/replications%2F8106b17d57837763c1906bf1dd4d01cb%2Fsocial%2Ftest_xdcr
-XDCR_PAUSE_ENDPOINT = "{url}/settions/replications/{xdcr_link_id}"
+XDCR_PAUSE_ENDPOINT = "{url}/settings/replications/{xdcr_link_id}"
 
 
 ###################################################
 # Performs a GET by returning the result as JSON
 #
 ###################################################
-def rest_get(url, user, password):
+def rest_call(url, user, password, http_type=None, data=None):
 
+    #Default values
+    if http_type is None:
+        http_type = HTTP_GET
+
+    if data is None:
+        data = ""
+
+    #Basic authentication
     pwd_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
     pwd_mgr.add_password(None, url, user, password)
     handler =  urllib2.HTTPBasicAuthHandler(pwd_mgr)
     opener = urllib2.build_opener(handler)
-    response = opener.open(url)
+
+    if ( http_type == HTTP_GET ):
+        response = opener.open(url)
+    elif(http_type == HTTP_POST):
+        response = opener.open(url, data)
+
     result = json.load(response)
 
     return result
@@ -43,7 +62,7 @@ def rest_get(url, user, password):
 def resolve_uuid(base_url, user, password, name):
 
     url = XDCR_REMOTE_CLUSTERS_ENDPOINT.replace("{url}", base_url)
-    json_arr = rest_get(url, user, password)
+    json_arr = rest_call(url, user, password)
 
     for entry in json_arr:
         if entry["name"] == name:
@@ -74,8 +93,39 @@ def ret_stat(base_url, user, password, s_bucket, xdcr_link, stat):
     url = url.replace("{xdcr_link_id}", xdcr_link)
     url = url.replace("{xdcr_stat}", stat)
 
-    #TODO Parse the result
-    return rest_get(url, user, password)
+    # 'nodeStats' : { 'node1' : [ ... ], 'node2' : [ ... ], ... }
+    json = rest_call(url, user, password)
 
+    nodeStats = json["nodeStats"];
 
-#TODO: Implement the pause/continue functionality
+    # Parse the stats
+    values = []
+    for node in nodeStats:
+        value = nodeStats[node]
+        first = value[0]
+        values.append(first)
+
+    return numpy.mean(values)
+
+###################################################
+# Pauses the replication
+#
+# If cont(inue) is true then the XDCR replication
+# will be continued again
+###################################################
+def pause(base_url, user, password, xdcr_link, cont=None):
+
+    if cont is None:
+        cont = False
+
+    url = XDCR_PAUSE_ENDPOINT.replace("{url}", base_url)
+    url = url.replace("{xdcr_link_id}", xdcr_link)
+
+    data = ""
+
+    if cont:
+        data = "pauseRequested=false"
+    else:
+        data = "pauseRequested=true"
+
+    return rest_call(url,user,password,HTTP_POST,data)
