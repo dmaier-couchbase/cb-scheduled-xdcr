@@ -27,6 +27,7 @@ The following basic requirments are existent:
   * Start time: The date and time when the job starts the first time
   * Frequency: How often should XDCR run
 * Transfer every change which is existent at the point of time when the job kicks in
+* !!! A very important requirement is that the target is everytime delayed (period of time). The current approach needs to be refactored in order to guarantee this because the target would currently keep up at the scheduled point of time. So we need also a kind of 'time behind' functionality !!!
 
 
 ## Implementation idea
@@ -34,6 +35,7 @@ The following basic requirments are existent:
 * Use the XDCR REST interface for pausing/resuming XDCR. The documentation can be found here: http://docs.couchbase.com/admin/admin/REST/rest-xdcr-pause-resume.html
 * Monitor the XDCR queues in order to determine if the relevant data was already transfered. The documention can be found here: http://docs.couchbase.com/admin/admin/REST/rest-xdcr-statistics.html .
 * Use the heuristic of a marker document. The marker document is created as soon as the jobs kicks in. The job checks frequently if the marker already arrived on the target side.
+* !!! Find a way to make it more time oriented in order to garantee that the target is everytime a time period behind the source !!!
 
 ## Challenges
 
